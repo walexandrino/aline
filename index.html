@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Aline ❤️</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #121212 0%, #1a1a2e 50%, #16213e 100%);
+            overflow-x: hidden;
+            color: white;
+        }
+
+        .spotify-bg-green {
+            background-color: #1DB954;
+        }
+
+        .glass-panel {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .photo-slide {
+            transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+        }
+
+        .photo-slide.active {
+            opacity: 1;
+            transform: scale(1);
+            z-index: 1;
+        }
+
+        .photo-slide.inactive {
+            opacity: 0;
+            transform: scale(1.05);
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        .photo-indicator {
+            transition: all 0.3s ease;
+        }
+
+        .photo-indicator.active {
+            background-color: #1DB954;
+            width: 24px;
+        }
+
+        .heart-pulse {
+            color: #ff4d4d !important;
+            fill: #ff4d4d !important;
+            animation: pulse-red 1.2s infinite;
+        }
+
+        @keyframes pulse-red {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.15);
+            }
+        }
+
+        .audio-visualizer {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            height: 20px;
+        }
+
+        .bar {
+            width: 3px;
+            background-color: #1DB954;
+            border-radius: 2px;
+            animation: bounce 0.8s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: scaleY(0.5);
+            }
+
+            50% {
+                transform: scaleY(1);
+            }
+        }
+
+        .paused .bar {
+            animation-play-state: paused;
+            height: 4px !important;
+        }
+
+        #lyricsContainer {
+            max-height: 160px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #1DB954 transparent;
+        }
+
+        #welcomeCover {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: #121212;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1s ease, visibility 1s;
+        }
+
+        #welcomeCover.hidden-cover {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .polaroid-frame {
+            background: white;
+            padding: 15px 15px 70px 15px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            transform: rotate(-3deg);
+            width: 90%;
+            max-width: 320px;
+        }
+
+        .polaroid-image {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            border: 1px solid #ddd;
+        }
+
+        .polaroid-caption {
+            font-family: 'Courier New', Courier, monospace;
+            color: #333;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            line-height: 1.2;
+        }
+
+        .btn-active {
+            color: #1DB954 !important;
+            filter: drop-shadow(0 0 5px rgba(29, 185, 84, 0.5));
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div id="welcomeCover">
+        <div class="w-full flex flex-col items-center">
+            <div class="polaroid-frame mb-12">
+                <img src="upload/capa.png" class="polaroid-image">
+                <p class="polaroid-caption">Nosso primeiro dia dos namorados de muitos ❤️</p>
+            </div>
+            <button id="startBtn"
+                class="spotify-bg-green text-black font-bold py-4 px-12 rounded-full text-lg shadow-xl active:scale-95 transition transform">
+                Iniciar nossa história
+            </button>
+        </div>
+    </div>
+
+    <div class="w-full max-w-md glass-panel rounded-3xl overflow-hidden shadow-2xl">
+        <div class="p-4 pb-2">
+            <div class="flex gap-1.5 mb-4" id="photoIndicators"></div>
+            <div
+                class="flex items-center justify-center gap-6 text-white/60 text-xs uppercase tracking-wider font-medium mb-2">
+                <span>Aline</span>
+                <i data-lucide="heart" class="heart-pulse"></i>
+                <span>Weverton</span>
+            </div>
+        </div>
+
+        <div class="relative px-6 aspect-square">
+            <div class="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl bg-black/40" id="photoContainer">
+            </div>
+            <div
+                class="absolute top-4 right-10 bg-black/60 backdrop-blur-md rounded-full px-3 py-1.5 flex items-center gap-2 z-10">
+                <div class="audio-visualizer paused" id="miniVisualizer">
+                    <div class="bar" style="height: 8px;"></div>
+                    <div class="bar" style="height: 16px;"></div>
+                    <div class="bar" style="height: 10px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-6 pt-6 pb-2">
+            <h2 class="text-white text-2xl font-bold mb-1">Trevo (Tu)</h2>
+            <p class="text-white/60 text-base font-medium">Ana Vitória</p>
+        </div>
+
+        <div class="px-6 py-4">
+            <div class="w-full h-2 bg-white/20 rounded-full mb-2 cursor-pointer relative group"
+                id="progressBarContainer">
+                <div class="absolute inset-y-0 left-0 spotify-bg-green rounded-full pointer-events-none"
+                    id="musicProgress" style="width: 0%"></div>
+                <div class="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                    id="progressHandle" style="left: 0%"></div>
+            </div>
+            <div class="flex justify-between text-xs text-white/50">
+                <span id="currentTime">0:00</span>
+                <span id="totalTime">0:00</span>
+            </div>
+        </div>
+
+        <div class="px-6 pb-6 pt-2">
+            <div class="flex items-center justify-between">
+                <button class="text-white/40"><i data-lucide="shuffle" class="w-5 h-5"></i></button>
+                <button class="text-white hover:scale-110 transition" id="prevBtn"><i data-lucide="skip-back"
+                        class="w-8 h-8 fill-current"></i></button>
+
+                <button
+                    class="spotify-bg-green text-black rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition active:scale-90"
+                    id="playPauseBtn">
+                    <div id="playIconContainer"><i data-lucide="play" class="w-7 h-7 fill-current ml-1"></i></div>
+                    <div id="pauseIconContainer" class="hidden"><i data-lucide="pause" class="w-7 h-7 fill-current"></i>
+                    </div>
+                </button>
+
+                <button class="text-white hover:scale-110 transition" id="nextBtn"><i data-lucide="skip-forward"
+                        class="w-8 h-8 fill-current"></i></button>
+                <button class="text-white/60 transition duration-300" id="repeatBtn"><i data-lucide="repeat"
+                        class="w-5 h-5"></i></button>
+            </div>
+        </div>
+
+        <div class="px-6 pb-8">
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-5" id="lyricsContainer">
+                <p class="text-white/90 text-sm leading-relaxed font-medium transition-opacity duration-300"
+                    id="longMessageText"></p>
+            </div>
+        </div>
+    </div>
+
+    <audio id="audioPlayer" preload="metadata">
+        <source src="upload/musica.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const TIME_PER_PHOTO = 12;
+        const photos = [
+            { url: 'upload/foto1.png', short: 'O INÍCIO ❤️', long: 'Mensagem 1...' },
+            { url: 'upload/foto2.png', short: 'SEU SORRISO ✨', long: 'Mensagem 2...' },
+            { url: 'upload/foto3.png', short: 'NOSSO LUGAR 📍', long: 'Mensagem 3...' },
+            { url: 'upload/foto4.png', short: 'CUMPLICIDADE 🤝', long: 'Mensagem 4...' },
+            { url: 'upload/foto5.png', short: 'AVENTURAS ✈️', long: 'Mensagem 5...' },
+            { url: 'upload/foto6.png', short: 'DETALHES 🌸', long: 'Mensagem 6...' },
+            { url: 'upload/foto7.png', short: 'PAZ 🌊', long: 'Mensagem 7...' },
+            { url: 'upload/foto8.png', short: 'SONHOS ☁️', long: 'Mensagem 8...' },
+            { url: 'upload/foto9.png', short: 'ALEGRIA 😄', long: 'Mensagem 9...' },
+            { url: 'upload/foto10.png', short: 'PARA SEMPRE ♾️', long: 'Mensagem 10...' }
+        ];
+
+        let currentPhotoIndex = 0;
+        let manualOverrideTimeout = null;
+
+        const audio = document.getElementById('audioPlayer');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const playIcon = document.getElementById('playIconContainer');
+        const pauseIcon = document.getElementById('pauseIconContainer');
+        const visualizer = document.getElementById('miniVisualizer');
+        const musicProgress = document.getElementById('musicProgress');
+        const progressHandle = document.getElementById('progressHandle');
+        const currentTimeEl = document.getElementById('currentTime');
+        const totalTimeEl = document.getElementById('totalTime');
+        const longMessageText = document.getElementById('longMessageText');
+        const progressBar = document.getElementById('progressBarContainer');
+        const repeatBtn = document.getElementById('repeatBtn');
+        const welcomeCover = document.getElementById('welcomeCover');
+        const startBtn = document.getElementById('startBtn');
+
+        function init() {
+            const container = document.getElementById('photoContainer');
+            const indicators = document.getElementById('photoIndicators');
+            photos.forEach((p, i) => {
+                const slide = document.createElement('div');
+                slide.className = `photo-slide absolute inset-0 w-full h-full ${i === 0 ? 'active' : 'inactive'}`;
+                slide.innerHTML = `<img src="${p.url}" class="w-full h-full object-cover"><div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4"><p class="text-white text-xs font-bold uppercase tracking-widest">${p.short}</p></div>`;
+                container.appendChild(slide);
+                const ind = document.createElement('div');
+                ind.className = `photo-indicator h-1 bg-white/30 rounded-full flex-1 ${i === 0 ? 'active' : ''}`;
+                indicators.appendChild(ind);
+            });
+            longMessageText.innerText = photos[0].long;
+            lucide.createIcons();
+        }
+
+        function updateUI() {
+            const slides = document.querySelectorAll('.photo-slide');
+            const inds = document.querySelectorAll('.photo-indicator');
+            slides.forEach((s, i) => s.className = `photo-slide absolute inset-0 w-full h-full ${i === currentPhotoIndex ? 'active' : 'inactive'}`);
+            inds.forEach((n, i) => n.classList.toggle('active', i === currentPhotoIndex));
+
+            longMessageText.style.opacity = 0;
+            setTimeout(() => {
+                longMessageText.innerText = photos[currentPhotoIndex].long;
+                longMessageText.style.opacity = 1;
+                document.getElementById('lyricsContainer').scrollTop = 0;
+            }, 300);
+        }
+
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play();
+                playIcon.classList.add('hidden'); pauseIcon.classList.remove('hidden');
+                visualizer.classList.remove('paused');
+            } else {
+                audio.pause();
+                playIcon.classList.remove('hidden'); pauseIcon.classList.add('hidden');
+                visualizer.classList.add('paused');
+            }
+        }
+
+        startBtn.onclick = () => {
+            welcomeCover.classList.add('hidden-cover');
+            togglePlay();
+        };
+
+        playPauseBtn.onclick = togglePlay;
+
+        audio.ontimeupdate = () => {
+            if (!audio.duration) return;
+            const p = (audio.currentTime / audio.duration) * 100;
+            musicProgress.style.width = p + '%';
+            progressHandle.style.left = p + '%';
+            currentTimeEl.textContent = formatTime(audio.currentTime);
+
+            if (!manualOverrideTimeout) {
+                let newIndex = Math.floor(audio.currentTime / TIME_PER_PHOTO) % photos.length;
+                if (newIndex !== currentPhotoIndex) {
+                    currentPhotoIndex = newIndex;
+                    updateUI();
+                }
+            }
+        };
+
+        function setManualOverride() {
+            if (manualOverrideTimeout) clearTimeout(manualOverrideTimeout);
+            manualOverrideTimeout = setTimeout(() => {
+                manualOverrideTimeout = null;
+                currentPhotoIndex = Math.floor(audio.currentTime / TIME_PER_PHOTO) % photos.length;
+                updateUI();
+            }, TIME_PER_PHOTO * 1000);
+        }
+
+        document.getElementById('nextBtn').onclick = () => {
+            currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+            updateUI();
+            setManualOverride(); 
+        };
+
+        document.getElementById('prevBtn').onclick = () => {
+            currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+            updateUI();
+            setManualOverride();
+        };
+
+        progressBar.onclick = (e) => {
+            if (!audio.duration) return;
+            const percentage = (e.clientX - progressBar.getBoundingClientRect().left) / progressBar.offsetWidth;
+            audio.currentTime = percentage * audio.duration;
+            if (manualOverrideTimeout) {
+                clearTimeout(manualOverrideTimeout);
+                manualOverrideTimeout = null;
+            }
+        };
+
+        repeatBtn.onclick = () => {
+            audio.loop = !audio.loop;
+            repeatBtn.classList.toggle('btn-active', audio.loop);
+        };
+
+        audio.onloadedmetadata = () => totalTimeEl.textContent = formatTime(audio.duration);
+        function formatTime(s) { return Math.floor(s / 60) + ":" + Math.floor(s % 60).toString().padStart(2, '0'); }
+
+        init();
+    </script>
+</body>
+
+</html>
