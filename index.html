@@ -25,6 +25,15 @@
             background-color: #1DB954;
         }
 
+        .spotify-text-green {
+            color: #1DB954 !important;
+            opacity: 1 !important;
+        }
+
+        .btn-inactive {
+            color: rgba(255, 255, 255, 0.4) !important;
+        }
+
         .glass-panel {
             background: rgba(30, 30, 30, 0.8);
             backdrop-filter: blur(20px);
@@ -32,13 +41,6 @@
             max-height: 95vh;
             display: flex;
             flex-direction: column;
-        }
-
-        .photo-container-wrapper {
-            position: relative;
-            width: 100%;
-            flex-shrink: 1;
-            min-height: 0;
         }
 
         .photo-slide {
@@ -99,7 +101,6 @@
             background-color: #1DB954;
             border-radius: 2px;
             animation: bounce 0.8s ease-in-out infinite;
-            /* Inicia pausado para sincronizar com o JS */
             animation-play-state: paused;
         }
 
@@ -120,7 +121,6 @@
             overflow-y: auto;
             scrollbar-width: thin;
             scrollbar-color: #1DB954 transparent;
-            min-height: 80px;
         }
 
         #welcomeCover {
@@ -164,12 +164,6 @@
             font-weight: bold;
             font-size: 1rem;
             margin-top: 15px;
-            line-height: 1.2;
-        }
-
-        .btn-active {
-            color: #1DB954 !important;
-            filter: drop-shadow(0 0 5px rgba(29, 185, 84, 0.5));
         }
     </style>
 </head>
@@ -190,7 +184,6 @@
     </div>
 
     <div class="w-full max-w-md glass-panel rounded-3xl overflow-hidden shadow-2xl h-full max-h-[850px]">
-
         <div class="p-4 pb-2 flex-shrink-0">
             <div class="flex gap-1.5 mb-4" id="photoIndicators"></div>
             <div
@@ -201,31 +194,34 @@
             </div>
         </div>
 
-        <div class="px-6 photo-container-wrapper">
+        <div class="px-6 relative w-full flex-shrink-1 min-height-0">
             <div class="relative w-full aspect-square rounded-2xl overflow-hidden shadow-2xl bg-black/40"
                 id="photoContainer"></div>
-
             <div
-                class="absolute top-4 right-6 bg-black/60 backdrop-blur-md rounded-full px-5 py-2 flex items-center justify-center z-10">
+                class="absolute top-4 right-10 bg-black/60 backdrop-blur-md rounded-full px-5 py-2 flex items-center justify-center z-10">
                 <div class="audio-visualizer" id="miniVisualizer">
                     <div class="bar" style="height: 8px; animation-delay: 0.1s;"></div>
                     <div class="bar" style="height: 14px; animation-delay: 0.3s;"></div>
                     <div class="bar" style="height: 18px; animation-delay: 0.5s;"></div>
                     <div class="bar" style="height: 12px; animation-delay: 0.2s;"></div>
                     <div class="bar" style="height: 16px; animation-delay: 0.4s;"></div>
-                    <div class="bar" style="height: 10px; animation-delay: 0.6s;"></div>
-                    <div class="bar" style="height: 14px; animation-delay: 0.1s;"></div>
-                    <div class="bar" style="height: 8px; animation-delay: 0.3s;"></div>
                 </div>
             </div>
         </div>
 
-        <div class="px-6 pt-4 sm:pt-6 pb-2 flex-shrink-0">
-            <h2 class="text-white text-xl sm:text-2xl font-bold mb-1 truncate">Trevo (Tu)</h2>
-            <p class="text-white/60 text-sm sm:text-base font-medium">Ana Vitória</p>
+        <div class="px-6 pt-3 pb-3 flex-grow overflow-hidden">
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 h-full" id="lyricsContainer">
+                <p class="text-white/90 text-sm leading-relaxed font-medium transition-opacity duration-300"
+                    id="longMessageText"></p>
+            </div>
         </div>
 
-        <div class="px-6 py-2 sm:py-4 flex-shrink-0">
+        <div class="px-6 pt-1 sm:pt-2 pb-1 flex-shrink-0">
+            <h2 class="text-white text-xl sm:text-2xl font-bold mb-0.5 truncate">Trevo (Tu)</h2>
+            <p class="text-white/60 text-sm sm:text-base font-medium">Anavitória part. Tiago Iorc</p>
+        </div>
+
+        <div class="px-6 py-2 flex-shrink-0">
             <div class="w-full h-1.5 bg-white/20 rounded-full mb-2 cursor-pointer relative group"
                 id="progressBarContainer">
                 <div class="absolute inset-y-0 left-0 spotify-bg-green rounded-full pointer-events-none"
@@ -239,12 +235,15 @@
             </div>
         </div>
 
-        <div class="px-6 pb-4 pt-2 flex-shrink-0">
+        <div class="px-6 pb-4 pt-1 flex-shrink-0">
             <div class="flex items-center justify-between">
-                <button class="text-white/40"><i data-lucide="shuffle" class="w-4 h-4 sm:w-5 sm:h-5"></i></button>
+                <button id="muteBtn"
+                    class="spotify-text-green transition duration-300 hover:scale-110 flex items-center justify-center">
+                    <i data-lucide="volume-2" id="muteIcon" class="w-5 h-5"></i>
+                </button>
+
                 <button class="text-white hover:scale-110 transition" id="prevBtn"><i data-lucide="skip-back"
                         class="w-6 h-6 sm:w-8 sm:h-8 fill-current"></i></button>
-
                 <button
                     class="spotify-bg-green text-black rounded-full w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shadow-lg transition active:scale-90"
                     id="playPauseBtn">
@@ -253,49 +252,43 @@
                     <div id="pauseIconContainer" class="hidden"><i data-lucide="pause"
                             class="w-6 h-6 sm:w-7 sm:h-7 fill-current"></i></div>
                 </button>
-
                 <button class="text-white hover:scale-110 transition" id="nextBtn"><i data-lucide="skip-forward"
                         class="w-6 h-6 sm:w-8 sm:h-8 fill-current"></i></button>
-                <button class="text-white/60 transition duration-300" id="repeatBtn"><i data-lucide="repeat"
-                        class="w-4 h-4 sm:w-5 sm:h-5"></i></button>
-            </div>
-        </div>
 
-        <div class="px-6 pb-6 flex-grow overflow-hidden">
-            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 h-full" id="lyricsContainer">
-                <p class="text-white/90 text-sm leading-relaxed font-medium transition-opacity duration-300"
-                    id="longMessageText"></p>
+                <button class="spotify-text-green transition duration-300" id="repeatBtn">
+                    <i data-lucide="repeat" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                </button>
             </div>
         </div>
     </div>
 
-    <audio id="audioPlayer" preload="metadata">
+    <audio id="audioPlayer" preload="metadata" loop>
         <source src="upload/musica.mp3" type="audio/mpeg">
     </audio>
 
     <script>
-        const TIME_PER_PHOTO = 12;
+        const TIME_PER_PHOTO = 15;
         const photos = [
-            { url: 'upload/foto1.png', short: 'O INÍCIO ❤️', long: 'Mensagem 1...' },
-            { url: 'upload/foto2.png', short: 'SEU SORRISO ✨', long: 'Mensagem 2...' },
-            { url: 'upload/foto3.png', short: 'NOSSO LUGAR 📍', long: 'Mensagem 3...' },
-            { url: 'upload/foto4.png', short: 'CUMPLICIDADE 🤝', long: 'Mensagem 4...' },
-            { url: 'upload/foto5.png', short: 'AVENTURAS ✈️', long: 'Mensagem 5...' },
-            { url: 'upload/foto6.png', short: 'DETALHES 🌸', long: 'Mensagem 6...' },
-            { url: 'upload/foto7.png', short: 'PAZ 🌊', long: 'Mensagem 7...' },
-            { url: 'upload/foto8.png', short: 'SONHOS ☁️', long: 'Mensagem 8...' },
-            { url: 'upload/foto9.png', short: 'ALEGRIA 😄', long: 'Mensagem 9...' },
-            { url: 'upload/foto10.png', short: 'PARA SEMPRE ♾️', long: 'Mensagem 10...' }
+            { url: 'upload/foto1.png', short: 'AMOR E PASTEL 🥟', long: 'No meio do movimento da feira, o meu mundo para quando olho para você.' },
+            { url: 'upload/foto2.png', short: 'SABOR DE FELICIDADE ☕', long: 'Nada como um café quentinho, o aroma de grãos torrados e a sua companhia para aquecer o coração.' },
+            { url: 'upload/foto3.png', short: 'PIPOCA, FILME E VOCÊ 🍿', long: 'De todos os filmes que já vi, a nossa história de amor é a que eu nunca canso de dar replay.' },
+            { url: 'upload/foto4.png', short: 'TORCIDA DE DOIS 🏟️', long: 'Não importa o placar, com você ao meu lado eu sempre saio ganhando.' },
+            { url: 'upload/foto5.png', short: 'MINHA MELHOR MOTIVAÇÃO 💪', long: 'O treino rende muito mais quando o descanso entre as séries é com o seu sorriso.' },
+            { url: 'upload/foto6.png', short: 'NOITE DE LUZ E AMOR 🕯️', long: 'O cenário é lindo, a comida está ótima, mas nada brilha mais do que o seu olhar nesta noite.' },
+            { url: 'upload/foto7.png', short: 'ONDE MEU CORAÇÃO DESCANSA 🏠', long: 'Não importa o endereço, o meu lugar favorito no mundo vai ser sempre onde você estiver.' },
+            { url: 'upload/foto8.png', short: 'TEMPERANDO A VIDA JUNTOS 🧂', long: 'Misturando sonhos, cozinhando planos e saboreando cada segundo ao seu lado.' },
+            { url: 'upload/foto9.png', short: 'SINTONIA EM CADA PASSO 🎵', long: 'Não importa o ritmo, contanto que seja você conduzindo o meu coração.' },
+            { url: 'upload/foto10.png', short: 'PARA TODO O SEMPRE ♾️', long: 'Prometo te escolher hoje, amanhã e em cada segundo da eternidade que nos espera.' }
         ];
 
         let currentPhotoIndex = 0;
-        let manualOverrideTimeout = null;
+        let autoSlideTimer;
 
         const audio = document.getElementById('audioPlayer');
         const playPauseBtn = document.getElementById('playPauseBtn');
         const playIcon = document.getElementById('playIconContainer');
         const pauseIcon = document.getElementById('pauseIconContainer');
-        const visualizer = document.getElementById('miniVisualizer');
+        const muteBtn = document.getElementById('muteBtn');
         const musicProgress = document.getElementById('musicProgress');
         const progressHandle = document.getElementById('progressHandle');
         const currentTimeEl = document.getElementById('currentTime');
@@ -336,6 +329,23 @@
             }, 300);
         }
 
+        function nextPhoto() {
+            currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+            updateUI();
+            resetAutoSlide();
+        }
+
+        function prevPhoto() {
+            currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+            updateUI();
+            resetAutoSlide();
+        }
+
+        function resetAutoSlide() {
+            clearInterval(autoSlideTimer);
+            autoSlideTimer = setInterval(nextPhoto, TIME_PER_PHOTO * 1000);
+        }
+
         function togglePlay() {
             const bars = document.querySelectorAll('.bar');
             if (audio.paused) {
@@ -349,9 +359,25 @@
             }
         }
 
+        muteBtn.onclick = () => {
+            audio.muted = !audio.muted;
+            const iconElement = document.getElementById('muteIcon');
+            if (audio.muted) {
+                iconElement.setAttribute('data-lucide', 'volume-off');
+                muteBtn.classList.remove('spotify-text-green');
+                muteBtn.classList.add('btn-inactive');
+            } else {
+                iconElement.setAttribute('data-lucide', 'volume-2');
+                muteBtn.classList.add('spotify-text-green');
+                muteBtn.classList.remove('btn-inactive');
+            }
+            lucide.createIcons();
+        };
+
         startBtn.onclick = () => {
             welcomeCover.classList.add('hidden-cover');
             togglePlay();
+            resetAutoSlide();
         };
 
         playPauseBtn.onclick = togglePlay;
@@ -362,57 +388,35 @@
             musicProgress.style.width = p + '%';
             progressHandle.style.left = p + '%';
             currentTimeEl.textContent = formatTime(audio.currentTime);
-
-            if (!manualOverrideTimeout) {
-                let newIndex = Math.floor(audio.currentTime / TIME_PER_PHOTO) % photos.length;
-                if (newIndex !== currentPhotoIndex) {
-                    currentPhotoIndex = newIndex;
-                    updateUI();
-                }
-            }
         };
 
-        function setManualOverride() {
-            if (manualOverrideTimeout) clearTimeout(manualOverrideTimeout);
-            manualOverrideTimeout = setTimeout(() => {
-                manualOverrideTimeout = null;
-                currentPhotoIndex = Math.floor(audio.currentTime / TIME_PER_PHOTO) % photos.length;
-                updateUI();
-            }, TIME_PER_PHOTO * 1000);
-        }
-
-        document.getElementById('nextBtn').onclick = () => {
-            currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
-            updateUI();
-            setManualOverride();
-        };
-
-        document.getElementById('prevBtn').onclick = () => {
-            currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
-            updateUI();
-            setManualOverride();
-        };
+        document.getElementById('nextBtn').onclick = nextPhoto;
+        document.getElementById('prevBtn').onclick = prevPhoto;
 
         progressBar.onclick = (e) => {
             if (!audio.duration) return;
             const percentage = (e.clientX - progressBar.getBoundingClientRect().left) / progressBar.offsetWidth;
             audio.currentTime = percentage * audio.duration;
-            if (manualOverrideTimeout) {
-                clearTimeout(manualOverrideTimeout);
-                manualOverrideTimeout = null;
-            }
         };
 
         repeatBtn.onclick = () => {
             audio.loop = !audio.loop;
-            repeatBtn.classList.toggle('btn-active', audio.loop);
+            if (audio.loop) {
+                repeatBtn.classList.add('spotify-text-green');
+                repeatBtn.classList.remove('btn-inactive');
+            } else {
+                repeatBtn.classList.remove('spotify-text-green');
+                repeatBtn.classList.add('btn-inactive');
+            }
         };
 
         audio.onended = () => {
-            const bars = document.querySelectorAll('.bar');
-            playIcon.classList.remove('hidden');
-            pauseIcon.classList.add('hidden');
-            bars.forEach(bar => bar.style.animationPlayState = 'paused');
+            if (!audio.loop) {
+                const bars = document.querySelectorAll('.bar');
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+                bars.forEach(bar => bar.style.animationPlayState = 'paused');
+            }
         };
 
         audio.onloadedmetadata = () => totalTimeEl.textContent = formatTime(audio.duration);
